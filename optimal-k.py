@@ -97,7 +97,7 @@ def _main():
             plt.ylabel('Optimal k', fontsize=12)
             plt.grid(True)
             plt.legend()
-            plt.savefig("figs/%s/opt-k-n=%d.png" % (args.model, n), dpi=600)
+            plt.savefig("figs/%s/opt-k-n=%s.png" % (args.model, str(n).zfill(3)), dpi=600)
 
 if __name__ == "__main__":
     _main()
