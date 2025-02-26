@@ -47,6 +47,44 @@ class HumanAI():
         else:
             raise NotImplementedError
 
+    def benefit_of_human_single_best(self, k, verbose=False):
+        if k > 2:
+            raise NotImplementedError
+
+        x1 = self.D_h.items()[0] # top item of human's ground truth ranking
+        prob_of_picking_x1 = self.prob_of_picking_item(k, x1)
+        prob_of_human_picking_x1 = self.D_h.prob_of_fixed_unordered_prefix([x1])
+    
+        if verbose:
+            print("Joint system picking x1: ", prob_of_picking_x1)
+            print("Human picks x1         : ", prob_of_human_picking_x1)
+            print("Joint - Human          : ", prob_of_picking_x1 - prob_of_human_picking_x1)
+            print("\n")
+
+        return prob_of_picking_x1 - prob_of_human_picking_x1
+
+    def benefit_of_human_beyond_single_best(self, m, k, utilitys, verbose=False):
+        if k > 2:
+            raise NotImplementedError
+
+        utility_of_joint_system = 0
+        utility_of_human = 0
+        
+        for i in range(m):
+            xi = self.D_h.items()[i] # the i-th best item of human's ground truth ranking
+            prob_of_picking_xi = self.prob_of_picking_item(k, xi)
+            prob_of_human_picking_xi = self.D_h.prob_of_fixed_unordered_prefix([xi])
+            
+            utility_of_joint_system += prob_of_picking_xi * utilitys[i]
+            utility_of_human += prob_of_human_picking_xi * utilitys[i]
+
+        if verbose:
+            print("Utility of joint system : ", utility_of_joint_system)
+            print("Utility of human        : ", utility_of_human)
+            print("Joint - Human          : ", utility_of_joint_system - utility_of_human)
+            print("\n")
+
+        return utility_of_joint_system - utility_of_human
 
 class TestHumanAI(unittest.TestCase):
     def test_humanai_prob_of_picking_item(self):            
@@ -57,6 +95,16 @@ class TestHumanAI(unittest.TestCase):
         joint_system = HumanAI(m, D_a, D_h)
         assert(joint_system.prob_of_picking_item(1, 1) == D_a.prob_of_fixed_unordered_prefix([1]))
         assert(joint_system.prob_of_picking_item(2, 1) > D_h.prob_of_fixed_unordered_prefix([2]))
+
+    def test_humanai_benefit_of_human_single_best(self):
+        m = 10
+        D_a = Mallows(m, 1)
+        D_h = Mallows(m, 1)
+        
+        joint_system = HumanAI(m, D_a, D_h)
+        benefit1 = joint_system.benefit_of_human_single_best(2)
+        assert(benefit1 > 0)
+
 
 if __name__ == '__main__':
     unittest.main()
