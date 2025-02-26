@@ -1,8 +1,9 @@
 import math
 import unittest
 import numpy as np
+from distribution import Distribution
 
-class Mallows():
+class Mallows(Distribution):
     def __init__(self, _m, _phi, _pi_star=None):
         self.m = _m 
         self.phi = _phi
@@ -14,6 +15,9 @@ class Mallows():
             self.pi_star = _pi_star
         self.Z_lst = [np.exp(-_phi * i) for i in range(0, _m)]
         self.Z_lam = lambda l: sum(self.Z_lst[:l])
+    
+    def items(self) -> list:
+        return self.pi_star
     
     def sample(self) -> list:
         """
