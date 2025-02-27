@@ -136,8 +136,15 @@ class MultiHumanAI():
             benefits.append(joint_system_i.benefit_of_human_single_best(k, verbose))
         
         return benefits
-    
-    def interaction(self, N, epoch=100):
+
+    def interaction_with_known_distribution(self):
+        info("Sythesizing a layout..")
+        self.find_layout()
+
+        benefits = self.benefit_of_human_single_best(self.n)
+        info("benefits: {}".format(benefits))
+
+    def interaction_with_unknown_distribution(self, N, epoch=100):
         # N is the number of interactions
         self.D_a = Mallows(self.m, 1, list(range(1, self.m+1)), True)
         credits = [0 for _ in range(self.m)]
