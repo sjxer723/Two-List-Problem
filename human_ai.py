@@ -1,5 +1,5 @@
-from distribution import Distribution
-from mallows import Mallows
+from model.distribution import Distribution
+from model.mallows import Mallows
 import unittest
 
 class HumanAI():
@@ -85,26 +85,3 @@ class HumanAI():
             print("\n")
 
         return utility_of_joint_system - utility_of_human
-
-class TestHumanAI(unittest.TestCase):
-    def test_humanai_prob_of_picking_item(self):            
-        m = 5
-        D_a = Mallows(m, 1)
-        D_h = Mallows(m, 1)
-
-        joint_system = HumanAI(m, D_a, D_h)
-        assert(joint_system.prob_of_picking_item(1, 1) == D_a.prob_of_fixed_unordered_prefix([1]))
-        assert(joint_system.prob_of_picking_item(2, 1) > D_h.prob_of_fixed_unordered_prefix([2]))
-
-    def test_humanai_benefit_of_human_single_best(self):
-        m = 10
-        D_a = Mallows(m, 1)
-        D_h = Mallows(m, 1)
-        
-        joint_system = HumanAI(m, D_a, D_h)
-        benefit1 = joint_system.benefit_of_human_single_best(2)
-        assert(benefit1 > 0)
-
-
-if __name__ == '__main__':
-    unittest.main()

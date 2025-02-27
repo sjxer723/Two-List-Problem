@@ -1,0 +1,89 @@
+import unittest
+from model.mallows import Mallows
+from model.rum import SuperStar
+from human_ai import HumanAI
+from utils import *
+
+class TestMallows(unittest.TestCase):
+    def test_mallows_prob_of_fixed_unordered_prefix(self):
+        info("test_mallows_prob_of_fixed_unordered_prefix")
+        m = 5
+        pi_star = [1, 2, 3, 4, 5]
+        
+        phi = 0
+        D = Mallows(m, phi, pi_star)
+        assert(D.prob_of_fixed_unordered_prefix([1]) == 0.2)
+        assert(D.prob_of_fixed_unordered_prefix([1, 2]) == 0.1)
+        assert(D.prob_of_fixed_unordered_prefix([2, 3]) == 0.1)
+        assert(D.prob_of_fixed_unordered_prefix([1, 2, 3]) == 0.1)
+        
+        phi = 10
+        D = Mallows(m, phi, pi_star)
+        assert(D.prob_of_fixed_unordered_prefix([1]) > 0.9)
+        assert(D.prob_of_fixed_unordered_prefix([1, 2]) > 0.9)
+        assert(D.prob_of_fixed_unordered_prefix([1, 2, 3]) > 0.9)
+        
+    def test_mallows_sample(self):
+        info("test_mallows_sample")
+        m = 10
+        theta = 1.0 
+
+        # no ground truth, [1,2,...,n] in default
+        D = Mallows(m, theta)
+        sample_perm = D.sample()
+        print("Sampled permutation:", sample_perm)
+
+        # with ground truth
+        pi_star = list(range(m, 0, -1))
+        D = Mallows(m, theta, pi_star)
+        sample_perm2 = D.sample()
+        print("Sampled permutation with pi_star =", pi_star,":", sample_perm2)
+
+class TestSuperStar(unittest.TestCase):
+    def test_superstar_sample(self):
+        info("test_superstar_sample")
+        D_super = SuperStar(5, 1, [0.5, 0.4, 0.1, 0, 0])
+        for _ in range(5):
+            sampled_perm = D_super.sample()
+            print(sampled_perm)
+
+    def test_prob_fixed_unordered_prefix(self):
+        info("test_prob_fixed_unordered_prefix")
+        D_super = SuperStar(5, 1, [0.5, 0.4, 0.1, 0, 0])
+        
+        assert(D_super.prob_of_fixed_unordered_prefix([1, 2]) == 0.225)
+        assert(D_super.prob_of_fixed_unordered_prefix([2, 3]) == 0.1 / 6)
+        
+
+    def test_prob_xi_before_xj(self):
+        info("test_prob_xi_before_xj")
+        D_super = SuperStar(5, 1, [0.5, 0.4, 0.1, 0, 0])
+        
+        assert(abs(D_super.prob_of_xi_before_xj(1, 2) - 0.85) < 1e-5)
+        assert(abs(D_super.prob_of_xi_before_xj(2, 1) - 0.15) < 1e-5)
+        assert(D_super.prob_of_xi_before_xj(2, 3) == 0.5)
+
+
+class TestHumanAI(unittest.TestCase):
+    def test_humanai_prob_of_picking_item(self):      
+        info("test_humanai_prob_of_picking_item")      
+        m = 5
+        D_a = Mallows(m, 1)
+        D_h = Mallows(m, 1)
+
+        joint_system = HumanAI(m, D_a, D_h)
+        assert(joint_system.prob_of_picking_item(1, 1) == D_a.prob_of_fixed_unordered_prefix([1]))
+        assert(joint_system.prob_of_picking_item(2, 1) > D_h.prob_of_fixed_unordered_prefix([2]))
+
+    def test_humanai_benefit_of_human_single_best(self):
+        info("test_humanai_benefit_of_human_single_best")
+        m = 10
+        D_a = Mallows(m, 1)
+        D_h = Mallows(m, 1)
+        
+        joint_system = HumanAI(m, D_a, D_h)
+        benefit1 = joint_system.benefit_of_human_single_best(2)
+        assert(benefit1 > 0)
+
+if __name__ == "__main__":
+    unittest.main()
