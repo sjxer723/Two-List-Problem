@@ -83,3 +83,6 @@ class gRUMBel(SuperStar):
                 continue
             coeff1 *= 1 / (1 + (1 - np.exp(-v1_beta)) / ((self.m - k) * np.exp(-v1_beta)))
             self.p_sigmas.append(coeff0 * coeff1)
+        
+    def items(self) -> list:
+        return [self.super_star] + [i for i in range(1, self.m + 1) if i != self.super_star]
