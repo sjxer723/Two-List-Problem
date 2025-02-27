@@ -66,3 +66,20 @@ class SuperStar(Distribution):
             return prob_of_xi_before_star
 
         return 0 
+    
+class gRUMBel(SuperStar):
+    def __init__(self, _m, _super_star, v1, beta):
+        self.m = _m
+        self.super_star = _super_star
+        if v1 < 0 or beta <= 0:
+            raise ValueError("v1 must be non-negative and beta must be positive")
+        v1_beta = v1 / beta
+        self.p_sigmas = []
+        coeff0 = 1 / (1 + (self.m - 1) * np.exp(-v1_beta))
+        coeff1 = 1
+        for k in range(self.m):
+            if k == 0:
+                self.p_sigmas.append(coeff0)
+                continue
+            coeff1 *= 1 / (1 + (1 - np.exp(-v1_beta)) / ((self.m - k) * np.exp(-v1_beta)))
+            self.p_sigmas.append(coeff0 * coeff1)

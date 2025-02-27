@@ -1,6 +1,6 @@
 import unittest
 from model.mallows import Mallows
-from model.rum import SuperStar
+from model.rum import SuperStar, gRUMBel
 from human_ai import HumanAI
 from utils import *
 
@@ -84,6 +84,22 @@ class TestHumanAI(unittest.TestCase):
         joint_system = HumanAI(m, D_a, D_h)
         benefit1 = joint_system.benefit_of_human_single_best(2)
         assert(benefit1 > 0)
+
+class TestgRUMbel(unittest.TestCase):
+    def test_grubel_init(self):
+        info("test_grubel_init")
+        g = gRUMBel(5, 1, 0, 1)
+        assert(g.p_sigmas[0] == 0.2)
+
+        g = gRUMBel(10, 1, 0, 1)
+        assert(g.p_sigmas[0] == 0.1)
+
+    def test_grubel_sample(self):
+        info("test_grubel_sample")
+        g = gRUMBel(5, 1, 10, 1)
+        for _ in range(5):
+            sampled_perm = g.sample()
+            print(sampled_perm)
 
 if __name__ == "__main__":
     unittest.main()
