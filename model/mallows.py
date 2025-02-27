@@ -1,7 +1,7 @@
 import math
 import unittest
 import numpy as np
-from distribution import Distribution
+from model.distribution import Distribution
 
 class Mallows(Distribution):
     def __init__(self, _m, _phi, _pi_star=None):
