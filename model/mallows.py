@@ -4,17 +4,20 @@ import numpy as np
 from model.distribution import Distribution
 
 class Mallows(Distribution):
-    def __init__(self, _m, _phi, _pi_star=None):
+    def __init__(self, _m, _phi, _pi_star=None, _fixed=False):
         self.m = _m 
         self.phi = _phi
         if _pi_star is None:
             self.pi_star = list(range(1, _m + 1))
         else:
             if len(_pi_star) != _m:
+                print("pi_star: ", _pi_star)
+                print("m: ", _m)
                 raise ValueError("Length of pi_star must be equal to m")    
             self.pi_star = _pi_star
         self.Z_lst = [np.exp(-_phi * i) for i in range(0, _m)]
         self.Z_lam = lambda l: sum(self.Z_lst[:l])
+        self.fixed = _fixed
     
     def items(self) -> list:
         return self.pi_star
@@ -23,6 +26,9 @@ class Mallows(Distribution):
         """
         Sample a permutation from the Mallows model.
         """
+        if self.fixed == True:
+            return self.pi_star
+
         permutation = [] 
         for i in range(1, self.m+1):
             possible_rs = np.arange(i)
@@ -45,6 +51,11 @@ class Mallows(Distribution):
         if k > self.m:
             raise ValueError("k must be less than or equal to m")
 
+        if self.fixed == True:
+            if sorted(items) == sorted(self.items()[:k]):
+                return 1
+            return 0
+        
         sum_of_0_to_k_minus_1 = sum([i for i in range(k)])
         sum_of_indices = sum([self.pi_star.index(item) for item in items])
 
@@ -54,6 +65,9 @@ class Mallows(Distribution):
         return prob_of_fixed_prefix
 
     def prob_of_xi_before_xj(self, xi, xj):
+        if self.fixed == True:
+            return 1 if self.pi_star.index(xi) < self.pi_star.index(xj) else 0
+        
         i = self.pi_star.index(xi)
         j = self.pi_star.index(xj)
         if i < j:

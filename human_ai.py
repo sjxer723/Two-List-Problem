@@ -1,6 +1,7 @@
 from model.distribution import Distribution
 from model.mallows import Mallows
-import unittest
+import numpy as np
+from utils import *
 
 class HumanAI():
     def __init__(self, m, D_a:Distribution, D_h:Distribution):
@@ -49,6 +50,7 @@ class HumanAI():
 
     def benefit_of_human_single_best(self, k, verbose=False):
         x1 = self.D_h.items()[0] # top item of human's ground truth ranking
+
         if k > 2:
             # Estimate the probability by sampling as the probabilty of P[xi > xj, xk] 
             # is unknown in Mallows Model
@@ -99,3 +101,64 @@ class HumanAI():
 
         return utility_of_joint_system - utility_of_human
     
+
+class MultiHumanAI():
+    def __init__(self, m, n, D_hs:list[Distribution], ps):
+        """
+            n: number of humans
+            D_hs: list of distributions of humans
+        """
+        self.m = m
+        self.n = n
+        self.D_a = None
+        if len(D_hs) != n:
+            raise ValueError("Length of D_h must be equal to n")
+        self.D_hs = D_hs
+        self.ps = ps
+        
+    def find_layout(self):
+        pi_a = []
+        for D_h in self.D_hs:
+            top_item = D_h.items()[0]
+            if top_item not in pi_a:
+                pi_a.append(top_item)
+        for i in range(1, self.m + 1):
+            if i not in pi_a:
+                pi_a.append(i)
+
+        self.D_a = Mallows(self.m, 1, pi_a, True)
+
+    def benefit_of_human_single_best(self, k, verbose=False):
+        benefits = []
+        for i in range(self.n):
+            D_h = self.D_hs[i]
+            joint_system_i = HumanAI(self.m, self.D_a, D_h)
+            benefits.append(joint_system_i.benefit_of_human_single_best(k, verbose))
+        
+        return benefits
+    
+    def interaction(self, N, epoch=100):
+        # N is the number of interactions
+        self.D_a = Mallows(self.m, 1, list(range(1, self.m+1)), True)
+        credits = [0 for _ in range(self.m)]
+        for t in range(N):
+            coming_human_index = np.random.choice(self.n, p=self.ps)
+            D_h = self.D_hs[coming_human_index]
+
+            joint_system = HumanAI(self.m, self.D_a, D_h)
+            chosen_item = joint_system.simulate_pick_and_choose(self.n)
+            human_top_item = D_h.items()[0]
+
+            if chosen_item == human_top_item:
+                # postive feedback
+                credits[chosen_item - 1] += 1
+            else:
+                # negative feedback
+                credits[chosen_item - 1] -= 1
+
+            sorted_items = sorted(range(1, self.m+1), key=lambda i: credits[i-1], reverse=True)
+            self.D_a = Mallows(self.m, 1, sorted_items, True)
+
+            if t % epoch == 0:
+                benefits = self.benefit_of_human_single_best(self.n)
+                info("t: {}, benefits: {}".format(t, benefits))

@@ -23,4 +23,5 @@ joint_system.simulate_pick_and_choose(k, verbose=True):
 
 ```
 $ jupyter nbconvert --to pdf misalignment.ipynb --output report/misalignment.pdf 
+$ jupyter nbconvert --to pdf layout.ipynb --output report/layout.pdf 
 ```
