@@ -39,6 +39,34 @@ class TestMallows(unittest.TestCase):
         sample_perm2 = D.sample()
         print("Sampled permutation with pi_star =", pi_star,":", sample_perm2)
 
+    def test_mallows_prob_of_xi_being_first_k(self):
+        info("test_mallows_xi_being_first_k")
+        m = 2
+        theta = 0
+        D = Mallows(m, theta)
+        assert(D.prob_of_xi_being_first_k(1, 1) == 0.5)
+        assert(D.prob_of_xi_being_first_k(1, 2) == 1)
+        assert(D.prob_of_xi_being_first_k(2, 1) == 0.5)
+        assert(D.prob_of_xi_being_first_k(2, 2) == 1)
+        
+        m = 3
+        theta = 1
+        D = Mallows(m, theta)
+        assert(abs(D.prob_of_xi_being_first_k(1, 3) - 1) < 1e-5)
+        assert(abs(D.prob_of_xi_being_first_k(2, 3) - 1) < 1e-5)
+        assert(abs(D.prob_of_xi_being_first_k(3, 3) - 1) < 1e-5)
+
+        m = 100
+        theta = 1
+        D = Mallows(m, theta)
+        print(D.prob_of_xi_being_first_k(1, 1))
+        print(D.prob_of_xi_being_first_k(1, 2))
+        print(D.prob_of_xi_being_first_k(1, 3))
+        print(D.prob_of_xi_being_first_k(2, 1))
+        print(D.prob_of_xi_being_first_k(2, 2))
+        print(D.prob_of_xi_being_first_k(2, 3))
+
+        
 class TestSuperStar(unittest.TestCase):
     def test_superstar_sample(self):
         info("test_superstar_sample")
