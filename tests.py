@@ -59,12 +59,12 @@ class TestMallows(unittest.TestCase):
         m = 100
         theta = 1
         D = Mallows(m, theta)
-        print(D.prob_of_xi_being_first_k(1, 1))
-        print(D.prob_of_xi_being_first_k(1, 2))
-        print(D.prob_of_xi_being_first_k(1, 3))
-        print(D.prob_of_xi_being_first_k(2, 1))
-        print(D.prob_of_xi_being_first_k(2, 2))
-        print(D.prob_of_xi_being_first_k(2, 3))
+        # print(D.prob_of_xi_being_first_k(10, 10))
+        # print(D.prob_of_xi_being_first_k(10, 11))
+        # print(D.prob_of_xi_being_first_k(10, 100))
+        # print(D.prob_of_xi_being_first_k(2, 1))
+        # print(D.prob_of_xi_being_first_k(2, 2))
+        # print(D.prob_of_xi_being_first_k(2, 3))
 
         
 class TestSuperStar(unittest.TestCase):
@@ -130,4 +130,10 @@ class TestgRUMbel(unittest.TestCase):
             print(sampled_perm)
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
+    m = 5
+    phi=10
+    D_a = Mallows(m, phi, [1, 2, 3, 4, 5])
+    D_h = Mallows(m, phi, [2, 1, 3, 4, 5])
+    joint_system = HumanAI(m, D_a, D_h)
+    print(joint_system.benefit_of_human_single_best(2))

@@ -95,49 +95,6 @@ class Mallows(Distribution):
             print("DP result for remaining items:", dp[self.m - 1][k - 1])
 
         return prob_prefix * dp[self.m - 1][k - 1]
-
-    # def prob_of_xi_being_first_k(self, xi, k, verbose=False):
-    #     items_except_xi = [item for item in self.pi_star if item != xi]
-    #     index_of_xi = self.pi_star.index(xi) + 1
-    #     prob_prefix = np.exp(-self.phi * (index_of_xi - k))
-    #     prob_prefix *= math.prod([self.Z_lam(i + 1) / self.Z_lam(self.m - i) for i in range(k)])
-        
-
-    #     def recursive_sum(self, num_of_remainings, k_prime):
-    #         if verbose == True:
-    #             print("number of remaining items: ", num_of_remainings)
-    #             print("k_prime: ", k_prime)
-
-    #         if k_prime == 0:
-    #             return 1
-    #         elif num_of_remainings < k_prime:
-    #             return 0
-    #         elif num_of_remainings == k_prime:
-    #             sum_of_0_to_k_prime_minus_1 = sum([i for i in range(k_prime)])
-    #             sum_of_indices = sum([self.pi_star.index(items_except_xi[i]) for i in range(num_of_remainings)])
-    #             return np.exp(- self.phi * (sum_of_indices - sum_of_0_to_k_prime_minus_1))
-    #         else:
-    #             last_item = items_except_xi[num_of_remainings - 1]
-    #             prob_prefix1 = np.exp(- self.phi * (self.pi_star.index(last_item) + 1 - k_prime))
-    #             return prob_prefix1 * recursive_sum(self, num_of_remainings - 1, k_prime - 1) + recursive_sum(self, num_of_remainings - 1, k_prime)
-
-    #     if verbose == True:
-    #         print("Recursive sum: ", recursive_sum(self, items_except_xi, k - 1))
-        
-    #     return prob_prefix * recursive_sum(self, self.m - 1, k - 1)
-# no remaining quota, emptyset is the only feasible solution
-            # if k_prime == 0:
-            #     return 1
-            # elif len(remaining_items) < k_prime:
-            #     return 0
-            # elif len(remaining_items) == k_prime:
-            #     sum_of_0_to_k_prime_minus_1 = sum([i for i in range(k_prime)])
-            #     sum_of_indices = sum([self.pi_star.index(item) for item in remaining_items])
-            #     return np.exp(- self.phi * (sum_of_indices - sum_of_0_to_k_prime_minus_1))
-            # else:
-            #     first_item = remaining_items[0]
-            #     prob_prefix1 = np.exp(- self.phi * (self.pi_star.index(first_item) + 1 - k_prime))
-            #     return prob_prefix1 * recursive_sum(self, remaining_items[1:], k_prime - 1) + recursive_sum(self, remaining_items[1:], k_prime)
             
     def prob_of_xi_before_xj(self, xi, xj):
         if self.fixed == True:
