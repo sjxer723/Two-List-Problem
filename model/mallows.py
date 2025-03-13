@@ -41,7 +41,21 @@ class Mallows(Distribution):
             permutation.insert(r, self.pi_star[i-1])
         
         return permutation
+    
+    def prob_of_xi_before_S(self, xi, S):
+        if S is None:
+            S = self.items()
+        if xi not in S:
+            return 0
+        if self.fixed == True:
+            return 1 if self.pi_star.index(xi) < min([self.pi_star.index(item) for item in S]) else 0
+        indices_of_S = [self.pi_star.index(item) for item in S]
+        indices_of_S.sort()
+        xi_new_index = indices_of_S.index(self.pi_star.index(xi))
+        prob_rank_xi_before_S = np.exp(-self.phi * xi_new_index) / self.Z_lam(len(S))
 
+        return prob_rank_xi_before_S
+    
     def prob_of_fixed_unordered_prefix(self, items):
         """
             The probability of the prefix is specified:

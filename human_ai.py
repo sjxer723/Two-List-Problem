@@ -74,18 +74,26 @@ class HumanAI():
     def benefit_of_human_beyond_single_best(self, m, k, utilitys, verbose=False):
         utility_of_joint_system = 0
         utility_of_human = 0
-        if k > 2:
-            num_of_simulation = 1000
-            for i in range(num_of_simulation):
-                chosen_item = self.simulate_pick_and_choose(k)
-                utility_of_joint_system += utilitys[self.D_h.items().index(chosen_item)]
-            
-            utility_of_joint_system /= num_of_simulation
+        if self.D_a.fixed:
+            # The utility of the joint system
+            layout_items = self.D_a.items()[:k]
+            for i in range(k):
+                xi = self.D_h.items()[i]
+                prob_of_human_picking_xi = self.D_h.prob_of_xi_before_S(xi, layout_items)
+                utility_of_joint_system += prob_of_human_picking_xi * utilitys[i]
         else:
-            for i in range(m):
-                xi = self.D_h.items()[i] # the i-th best item of human's ground truth ranking
-                prob_of_picking_xi = self.prob_of_picking_item(k, xi)
-                utility_of_joint_system += prob_of_picking_xi * utilitys[i]
+            if k > 2:
+                num_of_simulation = 1000
+                for i in range(num_of_simulation):
+                    chosen_item = self.simulate_pick_and_choose(k)
+                    utility_of_joint_system += utilitys[self.D_h.items().index(chosen_item)]
+                
+                utility_of_joint_system /= num_of_simulation
+            else:
+                for i in range(m):
+                    xi = self.D_h.items()[i] # the i-th best item of human's ground truth ranking
+                    prob_of_picking_xi = self.prob_of_picking_item(k, xi)
+                    utility_of_joint_system += prob_of_picking_xi * utilitys[i]
         
         # The utility of the human
         for i in range(m):
