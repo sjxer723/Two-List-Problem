@@ -114,15 +114,17 @@ class StrategyMIP():
 
         for t in range(1, self.m):
             for i in range(1, t+1):
-                # 0 <= q[t] + x[i] <= 1
-                self.add_binary([self.q(t), self.x(i)])
+                # q[t] + x[i] <= 1
+                self.add_leq([self.q(t), self.x(i)], [1, 1], 1)
+                # q[t] + x[i] >= 0
+                self.add_geq([self.q(t), self.x(i)], [1, 1], 0)
+            
             # q[t] + x[1] + x[2] + ... + x[t] >= 1
             # self.add_geq([self.q(t)] + [self.x(i) for i in range(1, t + 1)], [1] * (t + 1), 1)
 
         # 0 <= x[i] <= 1
-        for i in range(1, self.indicator_num + 1):
-            self.add_binary([self.x(i)])
-        # 0 <= x[1] + x[2] + ... + x[m] <= k
+        self.add_binary([self.x(i) for i in range(1, self.indicator_num + 1)])
+        # x[1] + x[2] + ... + x[m] <= k
         self.add_leq([self.x(i) for i in range(1, self.indicator_num+1)], [1] * self.indicator_num, self.k)
 
 
@@ -142,22 +144,23 @@ class StrategyMIP():
 
 m = 9
 
-u1 = [1 if i < 3 else 0 for i in range(m)]
-u2 = [i for i in range(m, 0, -1)]
-u3 = [np.exp(-i*0.1) for i in range(m)]
+# u1 = [1 if i < 3 else 0 for i in range(m)]
+# u2 = [i for i in range(m, 0, -1)]
+# u3 = [np.exp(-i*0.1) for i in range(m)]
 
+u1 = [1, 0, 1, 1, 0, 0, 0, 0]
 StrategyMIP_instance = StrategyMIP(m=8, k=2, u=u1)
 sol1 = StrategyMIP_instance.solve()
-StrategyMIP_instance.reset_u(u2)
-sol2 = StrategyMIP_instance.solve()
-StrategyMIP_instance.reset_u(u3)
-sol3 = StrategyMIP_instance.solve()
+# StrategyMIP_instance.reset_u(u2)
+# sol2 = StrategyMIP_instance.solve()
+# StrategyMIP_instance.reset_u(u3)
+# sol3 = StrategyMIP_instance.solve()
 
 
 info("u1 = {}".format(u1))
 print("Optimal solution:", sol1)
-info("u2 = {}".format(u2))
-print("Optimal solution:", sol2)
-info("u3= {}".format(u3))
-print("Optimal solution:", sol3)
+# info("u2 = {}".format(u2))
+# print("Optimal solution:", sol2)
+# info("u3= {}".format(u3))
+# print("Optimal solution:", sol3)
 
