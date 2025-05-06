@@ -16,7 +16,8 @@ class Mallows(Distribution):
                 raise ValueError("Length of pi_star must be equal to m")    
             self.pi_star = _pi_star
         self.Z_lst = [np.exp(-_phi * i) for i in range(0, _m)]
-        self.Z_lam = lambda l: sum(self.Z_lst[:l])
+        self.Z_lam = lambda l: sum(self.Z_lst[:l]) if l > 0 else 0
+        self.Z_neg_lam = lambda l, k: sum(self.Z_lst[k - l: k])
         self.fixed = _fixed
     
     def items(self) -> list:
@@ -42,19 +43,48 @@ class Mallows(Distribution):
         
         return permutation
     
-    def prob_of_xi_before_S(self, xi, S):
+    def prob_of_xi_before_S(self, xi, S=None, verbose=False):
         if S is None:
             S = self.items()
         if xi not in S:
-            return 0
-        if self.fixed == True:
-            return 1 if self.pi_star.index(xi) < min([self.pi_star.index(item) for item in S]) else 0
-        indices_of_S = [self.pi_star.index(item) for item in S]
-        indices_of_S.sort()
-        xi_new_index = indices_of_S.index(self.pi_star.index(xi))
-        prob_rank_xi_before_S = np.exp(-self.phi * xi_new_index) / self.Z_lam(len(S))
+            S = [xi] + S
+        if verbose:
+            print("xi: ", xi)
+            print("S: ", S)
 
-        return prob_rank_xi_before_S
+        # dp[i, j, k]: probability of xi being chosen at position s after the k-th step
+        dp = np.zeros((self.m + 1, self.m + 1, self.m + 1))        
+        for k in range(1, self.m + 1):
+            for i in range(1, k):
+                for s in range(1, k+1):
+                    # gamma_{k, s}
+                    gamma = self.Z_neg_lam(s, k) / self.Z_lam(k)
+                    # gamma_{k, s-1}
+                    gamma_prime = self.Z_neg_lam(s - 1, k) / self.Z_lam(k) 
+                    dp[i][s][k] = (1 - gamma) * dp[i][s][k - 1] + (gamma_prime * dp[i][s-1][k - 1] if self.pi_star[k - 1] not in S else 0)                    
+            for s in range(1, k + 1):
+                prod = 1
+                for i in range(1, k):
+                    prod *= self.pi_star[i - 1] not in S
+                if self.pi_star[k - 1] in S:
+                    sum_of_dp = 0
+                    for i in range(1, k):
+                        for l in range(s, self.m + 1):
+                            sum_of_dp += dp[i][l][k - 1]
+                    # if k is in S, we can only choose it at this position
+                    dp[k][s][k] = self.Z_lst[k - s] / self.Z_lam(k) * (sum_of_dp + prod)
+                else:
+                    dp[k][s][k] = 0
+
+        prob_of_xi = sum([dp[self.pi_star.index(xi) + 1][s][self.m] for s in range(1, self.m + 1)])
+        normal_prob = [sum([dp[self.pi_star.index(xj) + 1][s][self.m] for s in range(1, self.m + 1)]) for xj in S]
+        
+        if verbose:
+            print("prob_of_xi: ", prob_of_xi)
+            print("normal_prob: ", normal_prob)
+            print("sum(normal_prob): ", sum(normal_prob))
+
+        return prob_of_xi / sum(normal_prob)
     
     def prob_of_fixed_unordered_prefix(self, items):
         """

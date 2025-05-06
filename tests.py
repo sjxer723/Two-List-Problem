@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from model.mallows import Mallows
 from model.rum import SuperStar, gRUMBel
 from human_ai import HumanAI
@@ -66,7 +67,33 @@ class TestMallows(unittest.TestCase):
         # print(D.prob_of_xi_being_first_k(2, 2))
         # print(D.prob_of_xi_being_first_k(2, 3))
 
+    def test_mallows_prob_of_xi_before_S(self):
+        info("test_mallows_prob_of_xi_before_S")
+        m = 5
+        phi=np.log(2)
+        D = Mallows(m, phi, [1, 2, 3, 4, 5])         
+        prob = D.prob_of_xi_before_S(1, [2])
+        prob1 = D.prob_of_xi_before_xj(1, 2)
+        assert(abs(prob - prob1) < 1e-4)
+        prob = D.prob_of_xi_before_S(2, [4])
+        prob1 = D.prob_of_xi_before_xj(2, 4)
+        assert(abs(prob - prob1) < 1e-4)
+        prob = D.prob_of_xi_before_S(1, [5])
+        prob1 = D.prob_of_xi_before_xj(1, 5)
+        assert(abs(prob - prob1) < 1e-4)
         
+        D = Mallows(m, phi, [2, 3, 1, 4, 5]) 
+        prob = D.prob_of_xi_before_S(1, [2])
+        prob1 = D.prob_of_xi_before_xj(1, 2)
+        assert(abs(prob - prob1) < 1e-4)
+        prob = D.prob_of_xi_before_S(2, [4])
+        prob1 = D.prob_of_xi_before_xj(2, 4)
+        assert(abs(prob - prob1) < 1e-4)
+        prob = D.prob_of_xi_before_S(1, [5])
+        prob1 = D.prob_of_xi_before_xj(1, 5)
+        assert(abs(prob - prob1) < 1e-4)
+
+
 class TestSuperStar(unittest.TestCase):
     def test_superstar_sample(self):
         info("test_superstar_sample")
@@ -130,10 +157,20 @@ class TestgRUMbel(unittest.TestCase):
             print(sampled_perm)
 
 if __name__ == "__main__":
-    # unittest.main()
-    m = 5
-    phi=10
-    D_a = Mallows(m, phi, [1, 2, 3, 4, 5])
-    D_h = Mallows(m, phi, [2, 1, 3, 4, 5])
-    joint_system = HumanAI(m, D_a, D_h)
-    print(joint_system.benefit_of_human_single_best(2))
+    unittest.main()
+    # m = 5
+    # phi=np.log(2)
+    # D_a = Mallows(m, phi, [1, 2, 3, 4, 5]) 
+    # D_h = Mallows(m, phi, [2, 1, 3])
+
+    # prob_joint = 0
+    # for i in range(3):
+    #     if i == 1:
+    #         continue
+    #     else:
+    #         print( D_a.prob_of_fixed_unordered_prefix([i+1, 2]))
+    #         print(D_h.prob_of_xi_before_xj(2, i+1))
+    #         prob_joint += D_a.prob_of_fixed_unordered_prefix([i+1, 2]) * D_h.prob_of_xi_before_xj(2, i+1)
+    # print("Joint probability:", prob_joint)
+    # print(D_h.prob_of_fixed_unordered_prefix([2]))
+    # print(4/7)
