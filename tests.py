@@ -57,16 +57,6 @@ class TestMallows(unittest.TestCase):
         assert(abs(D.prob_of_xi_being_first_k(2, 3) - 1) < 1e-5)
         assert(abs(D.prob_of_xi_being_first_k(3, 3) - 1) < 1e-5)
 
-        m = 100
-        theta = 1
-        D = Mallows(m, theta)
-        # print(D.prob_of_xi_being_first_k(10, 10))
-        # print(D.prob_of_xi_being_first_k(10, 11))
-        # print(D.prob_of_xi_being_first_k(10, 100))
-        # print(D.prob_of_xi_being_first_k(2, 1))
-        # print(D.prob_of_xi_being_first_k(2, 2))
-        # print(D.prob_of_xi_being_first_k(2, 3))
-
     def test_mallows_prob_of_xi_before_S(self):
         info("test_mallows_prob_of_xi_before_S")
         m = 5
@@ -158,19 +148,3 @@ class TestgRUMbel(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    # m = 5
-    # phi=np.log(2)
-    # D_a = Mallows(m, phi, [1, 2, 3, 4, 5]) 
-    # D_h = Mallows(m, phi, [2, 1, 3])
-
-    # prob_joint = 0
-    # for i in range(3):
-    #     if i == 1:
-    #         continue
-    #     else:
-    #         print( D_a.prob_of_fixed_unordered_prefix([i+1, 2]))
-    #         print(D_h.prob_of_xi_before_xj(2, i+1))
-    #         prob_joint += D_a.prob_of_fixed_unordered_prefix([i+1, 2]) * D_h.prob_of_xi_before_xj(2, i+1)
-    # print("Joint probability:", prob_joint)
-    # print(D_h.prob_of_fixed_unordered_prefix([2]))
-    # print(4/7)
