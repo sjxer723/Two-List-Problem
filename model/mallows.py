@@ -18,11 +18,47 @@ class Mallows(Distribution):
         self.Z_lst = [np.exp(-_phi * i) for i in range(0, _m)]
         self.Z_lam = lambda l: sum(self.Z_lst[:l]) if l > 0 else 0
         self.Z_neg_lam = lambda l, k: sum(self.Z_lst[k - l: k])
+        self.Z = 1
+        for i in range(_m):
+            self.Z *= self.Z_lam(i + 1)
         self.fixed = _fixed
     
     def items(self) -> list:
         return self.pi_star
     
+    def kt_distance(self, permutation):
+        """
+        Calculate the Kendall tau distance between the permutation and the model's pi_star.
+        """
+        if self.fixed == True:
+            return 0
+        if len(permutation) != self.m:
+            raise ValueError("Length of permutation must be equal to m")
+        
+        # Count inversions
+        inversions = 0
+        for i in range(self.m):
+            for j in range(i + 1, self.m):
+                if self.pi_star.index(permutation[i]) > self.pi_star.index(permutation[j]):
+                    inversions += 1
+        return inversions
+    
+    def prob(self, permutation) -> float:
+        """
+        Calculate the probability of a given permutation under the Mallows model.
+        """
+        if self.fixed == True:
+            return 1 if permutation == self.pi_star else 0
+        if len(permutation) != self.m:
+            raise ValueError("Length of permutation must be equal to m")
+        
+        # Count inversions
+        inversions = self.kt_distance(permutation)
+        
+        # Calculate the probability
+        prob = np.exp(-self.phi * inversions)
+        return prob / self.Z 
+
     def sample(self) -> list:
         """
         Sample a permutation from the Mallows model.
